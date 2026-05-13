@@ -13,25 +13,44 @@ app.get('/', (req, res) => {
   res.send('Inkpad API running...')
 })
 
-// protected test route
-// app.get('/api/protected', verifyToken, (req, res) => {
-//   res.json({ message: 'Token valid', uid: req.user.uid })
-// })
+// protected note routes
+app.get('/api/notes', (req, res) => {
+  const userId = req.user?.uid || 'unknown'
+  const notes = [
+    { id: '1', userId, title: 'title', content: 'This is the first note.' },
+    { id: '2', userId, title: 'Day 2', content: 'This is the second note.' },
+  ]
+  res.status(200).json(notes)
+})
+
+app.get('/api/notes/:id', (req, res) => {
+  const { id } = req.params
+  const note = {
+    id,
+    userId: req.user?.uid || 'unknown',
+    title: `Day ${id}`,
+    content: `This is note description ${id}.`,
+  }
+  res.status(200).json(note)
+})
+
+app.post('/api/notes', verifyToken, (req, res) => {
+  const { title, content } = req.body
+  if (!title || !content) {
+    return res.status(400).json({ error: 'Title and content are required' })
+  }
+
+  const note = {
+    id: String(Math.floor(Math.random() * 10000) + 1),
+    userId: req.user.uid,
+    title,
+    content,
+  }
+
+  res.status(201).json(note)
+})
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
-
-//get all notes of specific user
-app.get('/notes', (req, res)=>{
-   res.status(200).json({ "userid": "user123", "title": "day 1", "content": "bla bla bla bla bla" })
-})
-
-//get all data of specific note
-app.get('/notes/:id',(req, res)=>{
-    const noteId = req.params.id
-    //get
-    res.status(200).json({ "userid": `user ${noteId}`, "title": `day ${noteId}`, "content": "bla bla bla bla bla bla bla" })
-})
-// http://localhost:3000
