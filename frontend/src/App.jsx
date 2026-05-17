@@ -3,6 +3,9 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Notes from './pages/Notes'
+import NewNote from './pages/NewNote'
+import NoteDetail from './pages/NoteDetail'
+import EditNote from './pages/EditNote'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
@@ -16,11 +19,38 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/notes" element={
-            <ProtectedRoute>
-              <Notes />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/notes"
+            element={
+              <ProtectedRoute>
+                <Notes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/new"
+            element={
+              <ProtectedRoute>
+                <NewNote />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/:id"
+            element={
+              <ProtectedRoute>
+                <NoteDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditNote />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </AuthProvider>

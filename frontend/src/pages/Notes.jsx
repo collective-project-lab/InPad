@@ -1,34 +1,34 @@
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useEffect, useState } from 'react'
+import { useNotesAPI } from '../hooks/useNotesAPI'
 
 const Notes = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [data, setData] = useState(null)
+  const { fetchNotes } = useNotesAPI()
+  const [notes, setNotes] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchProtectedData = async () => {
+    const loadNotes = async () => {
+      if (!user) return
+
       try {
-        const token = await user?.getIdToken()
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/protected`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        if (!response.ok) throw new Error('Failed to fetch')
-        const result = await response.json()
-        setData(result)
+        const result = await fetchNotes()
+        setNotes(result)
       } catch (err) {
         setError(err.message)
+      } finally {
+        setLoading(false)
       }
     }
 
-    if (user) fetchProtectedData()
-  }, [user])
+    loadNotes()
+  }, [user, fetchNotes])
 
   const handleLogout = async () => {
     await signOut(auth)
@@ -39,10 +39,27 @@ const Notes = () => {
     <div>
       <h1>My Notes</h1>
       <p>Logged in as: {user?.email}</p>
-      {data && <p>Server message: {data.message}</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      <div style={{ marginBottom: '1rem' }}>
+        <Link to="/notes/new">Create New Note</Link>
+      </div>
+      {loading && <p>Loading notes...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {!loading && !error && (
+        <>
+          {notes.length > 0 ? (
+            <ul>
+              {notes.map((note) => (
+                <li key={note.id}>
+                  <Link to={`/notes/${note.id}`}>{note.title}: {note.content}</Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No notes yet. Create one to get started.</p>
+          )}
+        </>
+      )}
       <button onClick={handleLogout}>Logout</button>
-      {/* notes will go here */}
     </div>
   )
 }
