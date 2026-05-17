@@ -1,16 +1,36 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNotesAPI } from '../hooks/useNotesAPI'
 
-const NewNote = () => {
-  const { user } = useAuth()
+const EditNote = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
-  const { createNote } = useNotesAPI()
+  const { user } = useAuth()
+  const { fetchNote, updateNote } = useNotesAPI()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    const loadNote = async () => {
+      if (!user) return
+
+      try {
+        const result = await fetchNote(id)
+        setTitle(result.title)
+        setContent(result.content)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadNote()
+  }, [id, user, fetchNote])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,8 +43,8 @@ const NewNote = () => {
 
     try {
       setSaving(true)
-      await createNote(title, content)
-      navigate('/notes')
+      await updateNote(id, title, content)
+      navigate(`/notes/${id}`)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -32,9 +52,11 @@ const NewNote = () => {
     }
   }
 
+  if (loading) return <p>Loading note...</p>
+
   return (
     <div>
-      <h1>Create New Note</h1>
+      <h1>Edit Note</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
@@ -60,11 +82,13 @@ const NewNote = () => {
           </label>
         </div>
         <button type="submit" disabled={saving}>
-          {saving ? 'Saving...' : 'Save Note'}
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
+        {' '}
+        <Link to={`/notes/${id}`}>Cancel</Link>
       </form>
     </div>
   )
 }
 
-export default NewNote
+export default EditNote

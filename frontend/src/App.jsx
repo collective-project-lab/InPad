@@ -5,6 +5,7 @@ import Signup from './pages/Signup'
 import Notes from './pages/Notes'
 import NewNote from './pages/NewNote'
 import NoteDetail from './pages/NoteDetail'
+import EditNote from './pages/EditNote'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
@@ -39,6 +40,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <NoteDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notes/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EditNote />
               </ProtectedRoute>
             }
           />
