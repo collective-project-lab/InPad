@@ -3,31 +3,22 @@ import { Link, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../firebase'
 import { useAuth } from '../context/AuthContext'
+import { useNotesAPI } from '../hooks/useNotesAPI'
 
 const Notes = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { fetchNotes } = useNotesAPI()
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchNotes = async () => {
+    const loadNotes = async () => {
       if (!user) return
 
       try {
-        const token = await user.getIdToken()
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error('Unable to load notes.')
-        }
-
-        const result = await response.json()
+        const result = await fetchNotes()
         setNotes(result)
       } catch (err) {
         setError(err.message)
@@ -36,8 +27,8 @@ const Notes = () => {
       }
     }
 
-    fetchNotes()
-  }, [user])
+    loadNotes()
+  }, [user, fetchNotes])
 
   const handleLogout = async () => {
     await signOut(auth)
