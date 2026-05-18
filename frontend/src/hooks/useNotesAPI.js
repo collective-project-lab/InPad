@@ -2,10 +2,17 @@ import { useAuth } from '../context/AuthContext'
 
 export const useNotesAPI = () => {
   const { user } = useAuth()
-  const API_URL = import.meta.env.VITE_API_URL
+  const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "")
 
   const getToken = async () => {
-    return await user?.getIdToken()
+    if (!user) {
+      throw new Error('User is not authenticated')
+    }
+    const token = await user.getIdToken()
+    if (!token) {
+      throw new Error('Unable to get auth token')
+    }
+    return token
   }
 
   const fetchNotes = async () => {
@@ -41,8 +48,13 @@ export const useNotesAPI = () => {
       body: JSON.stringify({ title, content }),
     })
     if (!response.ok) {
-      const payload = await response.json()
-      throw new Error(payload.error || 'Unable to create note.')
+      const contentType = response.headers.get('content-type') || ''
+      if (contentType.includes('application/json')) {
+        const payload = await response.json()
+        throw new Error(payload.error || 'Unable to create note.')
+      }
+      const text = await response.text()
+      throw new Error(`Unable to create note. Server response: ${text.slice(0, 200)}`)
     }
     return response.json()
   }
