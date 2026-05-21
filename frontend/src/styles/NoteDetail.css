@@ -1,0 +1,155 @@
+.note-detail-container {
+  min-height: 100%;
+  background-color: transparent;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.note-detail-box {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 700px;
+  margin-top: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  color: #0066ff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  color: #0052cc;
+}
+
+.note-detail-box h1 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.75rem;
+  word-break: break-word;
+}
+
+.note-content {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.95rem;
+}
+
+.note-meta {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.note-id {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.note-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #ffb300;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #d0d0d0;
+}
+
+.btn-danger {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #ff5252;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.95rem;
+}
+
+.error {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .note-detail-container {
+    padding: 1rem;
+  }
+
+  .note-detail-box {
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .note-detail-box h1 {
+    font-size: 1.4rem;
+  }
+
+  .note-content {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .note-actions {
+    flex-direction: column;
+  }
+}

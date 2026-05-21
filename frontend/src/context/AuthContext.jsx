@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth'
 import { auth } from '../firebase'
 
 const AuthContext = createContext()
@@ -9,9 +9,18 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-      setLoading(false)
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user)
+        setLoading(false)
+      } else {
+        // Auto sign in as guest if not authenticated
+        try {
+          await signInAnonymously(auth)
+        } catch (err) {
+          console.error('Failed to auto-login as guest:', err)
+        }
+      }
     })
     return unsub
   }, [])

@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Firebase service account keys (SENSITIVE - NEVER COMMIT)
+serviceAccount.json
+newServiceAccount.json
+*.serviceAccount.json
+serviceAccountKey.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
