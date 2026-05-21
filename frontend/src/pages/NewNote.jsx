@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNotesAPI } from '../hooks/useNotesAPI'
+import '../styles/NoteForm.css'
 
 const NewNote = () => {
   const { user } = useAuth()
@@ -33,36 +34,44 @@ const NewNote = () => {
   }
 
   return (
-    <div>
-      <h1>Create New Note</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Title
+    <div className="note-form-container">
+      <div className="note-form-box">
+        <Link to="/notes" className="back-link">← Back to Notes</Link>
+        <h1>Create New Note</h1>
+        {error && <p className="error-message">{error}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="title">Title</label>
             <input
+              id="title"
               type="text"
+              className="form-input"
+              placeholder="Note title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            Content
+          </div>
+          <div className="form-group">
+            <label htmlFor="content">Content</label>
             <textarea
+              id="content"
+              className="form-textarea"
+              placeholder="Write your note here..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
-              rows={6}
+              rows={8}
             />
-          </label>
-        </div>
-        <button type="submit" disabled={saving}>
-          {saving ? 'Saving...' : 'Save Note'}
-        </button>
-      </form>
+          </div>
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save Note'}
+            </button>
+            <Link to="/notes" className="btn btn-secondary">Cancel</Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Notes from './pages/Notes'
@@ -12,11 +13,13 @@ const ProtectedRoute = ({ children }) => {
   return user ? children : <Navigate to="/login" />
 }
 
-const App = () => {
+const AppContent = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <>
+      <Navbar />
+      <div className="main-content">
         <Routes>
+          <Route path="/" element={<Navigate to="/notes" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route
@@ -51,8 +54,17 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
+      </div>
+    </>
+  )
+}
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContent />
       </AuthProvider>
     </BrowserRouter>
   )

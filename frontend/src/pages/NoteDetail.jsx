@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNotesAPI } from '../hooks/useNotesAPI'
+import '../styles/NoteDetail.css'
 
 const NoteDetail = () => {
   const { id } = useParams()
@@ -44,24 +45,42 @@ const NoteDetail = () => {
     }
   }
 
-  if (loading) return <p>Loading note...</p>
-  if (error) return <p style={{ color: 'red' }}>{error}</p>
+  if (loading) return (
+    <div className="note-detail-container">
+      <p className="loading">Loading note...</p>
+    </div>
+  )
+  
+  if (error) return (
+    <div className="note-detail-container">
+      <p className="error">{error}</p>
+    </div>
+  )
 
   return (
-    <div>
-      <h1>{note.title}</h1>
-      <p>{note.content}</p>
-      <p>
-        <strong>Note ID:</strong> {note?.id}
-      </p>
-      <div style={{ marginTop: '1rem' }}>
-        <Link to={`/notes/${id}/edit`}>Edit</Link>
-        {' | '}
-        <button onClick={handleDelete} disabled={deleting} style={{ marginLeft: '1rem' }}>
-          {deleting ? 'Deleting...' : 'Delete'}
-        </button>
-        {' | '}
-        <Link to="/notes" style={{ marginLeft: '1rem' }}>Back to notes</Link>
+    <div className="note-detail-container">
+      <div className="note-detail-box">
+        <Link to="/notes" className="back-link">← Back to Notes</Link>
+        <h1>{note.title}</h1>
+        <div className="note-content">
+          {note.content}
+        </div>
+        <div className="note-meta">
+          <span className="note-id">ID: {note?.id}</span>
+        </div>
+        <div className="note-actions">
+          <Link to={`/notes/${id}/edit`} className="btn btn-primary">
+            Edit
+          </Link>
+          <button 
+            onClick={handleDelete} 
+            disabled={deleting}
+            className="btn btn-danger"
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </button>
+          <Link to="/notes" className="btn btn-secondary">Back</Link>
+        </div>
       </div>
     </div>
   )
