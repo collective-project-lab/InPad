@@ -30,6 +30,7 @@ const Notes = () => {
     loadNotes()
   }, [user, fetchNotes])
 
+  
   const handleLogout = async () => {
     await signOut(auth)
     navigate('/login')
