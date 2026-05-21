@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInAnonymously } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -19,6 +19,18 @@ const Login = () => {
       console.log(token);
     } catch (err) {
       setError("Invalid email or password");
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setError("");
+    try {
+      await signInAnonymously(auth);
+      navigate("/notes");
+      const token = await auth.currentUser.getIdToken();
+      console.log(token);
+    } catch (err) {
+      setError("Failed to login as guest");
     }
   };
 
@@ -48,6 +60,9 @@ const Login = () => {
       <p>
         No account? <Link to="/signup">Sign up</Link>
       </p>
+      <button type="button" onClick={handleGuestLogin} style={{ marginTop: "10px" }}>
+        Continue as Guest
+      </button>
     </div>
   );
 };
