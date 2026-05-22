@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "serve dist -l $PORT"
+    "preview": "serve dist -l tcp://0.0.0.0:$PORT"
   },
   "dependencies": {
     "firebase": "^12.13.0",
