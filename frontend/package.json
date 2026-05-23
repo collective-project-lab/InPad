@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "serve -l 3000 -s dist",
-    "start": "serve -l 8080 -s dist"
+    "preview": "npx serve -l 3000 -s dist",
+    "start": "npx serve -l 8080 -s dist"
   },
   "dependencies": {
     "firebase": "^12.13.0",
