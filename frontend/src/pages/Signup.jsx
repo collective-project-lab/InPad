@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
 import '../styles/Auth.css'
@@ -10,6 +10,7 @@ const Signup = () => {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "")
 
   const handleSignup = async (e) => {
     e.preventDefault()
@@ -22,10 +23,49 @@ const Signup = () => {
 
     setLoading(true)
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
+      const currentUser = auth.currentUser
+      const isGuest = currentUser?.isAnonymous
+      const guestUid = currentUser?.uid
+
+      // Create new account with email/password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const namedUid = userCredential.user.uid
+
+      // If this was a guest account, migrate their data
+      if (isGuest && guestUid) {
+        try {
+          const token = await auth.currentUser.getIdToken()
+          const response = await fetch(`${API_URL}/api/auth/migrate-notes`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ guestUid, namedUid }),
+          })
+
+          if (!response.ok) {
+            throw new Error('Failed to migrate notes')
+          }
+
+          const data = await response.json()
+          console.log(`Successfully migrated ${data.migratedCount} notes`)
+        } catch (migrateErr) {
+          console.error('Migration error:', migrateErr)
+          setError('Account created but failed to migrate notes. Your data may be recoverable.')
+          setLoading(false)
+          return
+        }
+      }
+
       navigate('/notes')
     } catch (err) {
-      setError('Could not create account. Try a stronger password.')
+      console.error('Signup error:', err)
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Email already in use. Please use a different email.')
+      } else {
+        setError('Could not create account. Try a stronger password.')
+      }
     } finally {
       setLoading(false)
     }

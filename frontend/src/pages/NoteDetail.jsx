@@ -66,7 +66,7 @@ const NoteDetail = () => {
           {note.content}
         </div>
         <div className="note-meta">
-          <span className="note-id">ID: {note?.id}</span>
+          {/* <span className="note-id">ID: {note?.id}</span> */}
         </div>
         <div className="note-actions">
           <Link to={`/notes/${id}/edit`} className="btn btn-primary">
@@ -79,7 +79,7 @@ const NoteDetail = () => {
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </button>
-          <Link to="/notes" className="btn btn-secondary">Back</Link>
+          {/* <Link to="/notes" className="btn btn-secondary">Back</Link> */}
         </div>
       </div>
     </div>

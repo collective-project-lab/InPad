@@ -10,6 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/notes", verifyToken);
+app.use("/api/auth", verifyToken);
 
 // get database
 const db = admin.database();
@@ -55,12 +56,28 @@ app.put("/api/notes/:id",  async (req, res) => {
     const userId = req.user.uid
     //get reference of note
     const noteRef = db.ref(`users/${userId}/notes/${id}`);
+    
+    // First check if note exists
+    const snapshot = await noteRef.once("value");
+    if (!snapshot.exists()) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    // Update the note
     await noteRef.update({
       title,
       content,
     })
-    res.status(200).json({ id: noteRef.key, ...req.body });
+    
+    // Return the updated note data
+    res.status(200).json({ 
+      id, 
+      title,
+      content,
+      createdAt: snapshot.val().createdAt
+    });
   } catch (error) {
+    console.error('Update error:', error)
     res.status(500).json({ error: error.message });
   }
 });
@@ -115,6 +132,55 @@ app.delete("/api/notes/:id",  async (req, res) => {
     await noteRef.remove();
     res.status(200).json({ message: `Note with id ${id} deleted successfully` });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// migrate notes from guest account to named account
+app.post("/api/auth/migrate-notes", async (req, res) => {
+  try {
+    const { guestUid, namedUid } = req.body;
+    const requestingUid = req.user.uid;
+
+    // Verify the requesting user is the named user (the one just created)
+    if (requestingUid !== namedUid) {
+      return res.status(403).json({ error: "Unauthorized: Cannot migrate notes for another user" });
+    }
+
+    if (!guestUid || !namedUid) {
+      return res.status(400).json({ error: "guestUid and namedUid are required" });
+    }
+
+    // Get all notes from guest account
+    const guestNotesRef = db.ref(`users/${guestUid}/notes`);
+    const guestSnapshot = await guestNotesRef.once("value");
+
+    let migratedCount = 0;
+
+    if (guestSnapshot.exists()) {
+      // Get reference to named user's notes
+      const namedNotesRef = db.ref(`users/${namedUid}/notes`);
+
+      // Copy each guest note to named account
+      guestSnapshot.forEach((childSnapshot) => {
+        const noteId = childSnapshot.key;
+        const noteData = childSnapshot.val();
+        
+        // Copy note to named account
+        namedNotesRef.child(noteId).set(noteData);
+        migratedCount++;
+      });
+
+      // Delete guest notes after successful migration
+      await guestNotesRef.remove();
+    }
+
+    res.status(200).json({ 
+      message: "Notes migrated successfully",
+      migratedCount 
+    });
+  } catch (error) {
+    console.error("Migration error:", error);
     res.status(500).json({ error: error.message });
   }
 });
