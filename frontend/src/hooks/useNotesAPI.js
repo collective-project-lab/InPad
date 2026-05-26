@@ -70,10 +70,19 @@ export const useNotesAPI = () => {
       body: JSON.stringify({ title, content }),
     })
     if (!response.ok) {
-      const payload = await response.json()
-      throw new Error(payload.error || 'Unable to update note.')
+      let errorMsg = 'Unable to update note.'
+      try {
+        const payload = await response.json()
+        errorMsg = payload.error || errorMsg
+      } catch (e) {
+        errorMsg = `Server error (${response.status}): Unable to parse response`
+      }
+      console.error('Update failed:', errorMsg)
+      throw new Error(errorMsg)
     }
-    return response.json()
+    const result = await response.json()
+    console.log('Update response:', result)
+    return result
   }
 
   const deleteNote = async (id) => {

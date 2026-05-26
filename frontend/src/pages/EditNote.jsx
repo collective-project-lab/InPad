@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useNotesAPI } from '../hooks/useNotesAPI'
@@ -14,15 +14,17 @@ const EditNote = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const hasLoadedRef = useRef(false)
 
   useEffect(() => {
     const loadNote = async () => {
-      if (!user) return
+      if (!user || hasLoadedRef.current) return
 
       try {
         const result = await fetchNote(id)
         setTitle(result.title)
         setContent(result.content)
+        hasLoadedRef.current = true
       } catch (err) {
         setError(err.message)
       } finally {
@@ -31,7 +33,7 @@ const EditNote = () => {
     }
 
     loadNote()
-  }, [id, user, fetchNote])
+  }, [id, user])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -44,11 +46,15 @@ const EditNote = () => {
 
     try {
       setSaving(true)
-      await updateNote(id, title, content)
-      navigate(`/notes/${id}`)
+      const response = await updateNote(id, title, content)
+      console.log('Note updated successfully:', response)
+      // Redirect after a brief delay to ensure data is saved
+      setTimeout(() => {
+        navigate(`/notes/${id}`)
+      }, 300)
     } catch (err) {
-      setError(err.message)
-    } finally {
+      console.error('Save error:', err)
+      setError(`Failed to save: ${err.message}`)
       setSaving(false)
     }
   }
