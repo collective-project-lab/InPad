@@ -11,11 +11,36 @@ const __dirname = path.dirname(__filename);
 
 if (!admin.apps.length) {
   try {
-    const serviceAccountPath = path.join(__dirname, "../../serviceAccountKey.json");
-    const svc = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+    let serviceAccount;
+
+    // Production (Railway)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+      serviceAccount = JSON.parse(
+        Buffer.from(
+          process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+          "base64"
+        ).toString("utf8")
+      );
+
+      console.log("Using Firebase credentials from Railway env");
+    }
+
+    // Local development
+    else {
+      const serviceAccountPath = path.join(
+        __dirname,
+        "../../serviceAccountKey.json"
+      );
+
+      serviceAccount = JSON.parse(
+        fs.readFileSync(serviceAccountPath, "utf8")
+      );
+
+      console.log("Using local Firebase service account file");
+    }
 
     admin.initializeApp({
-      credential: admin.credential.cert(svc),
+      credential: admin.credential.cert(serviceAccount),
       databaseURL: process.env.FIREBASE_DATABASE_URL,
     });
 
